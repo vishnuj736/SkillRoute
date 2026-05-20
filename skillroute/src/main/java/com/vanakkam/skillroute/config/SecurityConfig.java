@@ -1,11 +1,16 @@
 package com.vanakkam.skillroute.config;
 
+import com.vanakkam.skillroute.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -14,30 +19,29 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. Disable CSRF for stateless API testing
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // 2. Enable CORS so your React client won't block endpoints later
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // 3. Configure strict endpoint mapping rules
                 .authorizeHttpRequests(auth -> auth
-                        // Allow all endpoints under /api/admin/ to bypass security filters during development
-                        .requestMatchers("/api/admin/**").permitAll()
-
-                        // CRITICAL FIX: Allow Spring Boot's internal error dispatching path to bypass auth.
-                        // If your code throws an error internally, Spring redirects to /error.
-                        // If /error is locked, it shows a 403 Forbidden instead of the actual error message!
+                        // Open up the auth endpoints so people can actually register and login!
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").permitAll() // Keep this open for now while we test
                         .requestMatchers("/error").permitAll()
-
-                        // Everything else stays locked down until we add JWT tokens
                         .anyRequest().authenticated()
-                );
+                )
+                // Tell Spring Security NOT to store session states (stateless JWT approach)
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                // Insert our custom JWT filter BEFORE the standard password check filter
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -45,7 +49,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Allows testing from any frontend origin
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
 

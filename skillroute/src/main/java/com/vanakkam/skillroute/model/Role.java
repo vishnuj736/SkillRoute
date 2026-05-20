@@ -1,6 +1,6 @@
 package com.vanakkam.skillroute.model;
 
-public class Role {
+public enum Role {
     ROLE_ADMIN,
     ROLE_LEARNER
 }
