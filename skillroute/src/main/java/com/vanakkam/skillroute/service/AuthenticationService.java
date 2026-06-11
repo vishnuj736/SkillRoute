@@ -23,23 +23,22 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // 1. Build the user object and hash the password
+
+        // Defensive check: If role is missing or null, default to ROLE_LEARNER
+        Role assignedRole = (request.getRole() != null && !request.getRole().isBlank())
+                ? Role.valueOf(request.getRole())
+                : Role.ROLE_LEARNER;
+
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.valueOf(request.getRole()))
+                .role(assignedRole) // Use the safely checked role
                 .build();
 
-        // 2. Save to PostgreSQL
         repository.save(user);
-
-        // 3. Generate JWT token
         var jwtToken = jwtService.generateToken(user);
-
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

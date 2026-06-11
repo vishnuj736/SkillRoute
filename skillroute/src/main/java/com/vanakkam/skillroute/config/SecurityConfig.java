@@ -31,10 +31,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Open up the auth endpoints so people can actually register and login!
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").permitAll() // Keep this open for now while we test
                         .requestMatchers("/error").permitAll()
+                        // Lock down the admin routes to ONLY users with the Admin role
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 // Tell Spring Security NOT to store session states (stateless JWT approach)
