@@ -1,5 +1,6 @@
 package com.vanakkam.skillroute.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -27,5 +28,6 @@ public class Assessment {
 
     @OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private List<Question> questions = new ArrayList<>();
 }

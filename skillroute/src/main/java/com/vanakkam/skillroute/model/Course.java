@@ -1,5 +1,6 @@
 package com.vanakkam.skillroute.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class Course {
     // Direct relationship: A course manages its modules natively.
     // CascadeType.ALL ensures when a course is deleted, its modules go with it.
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Module> modules = new ArrayList<>();
+
+    @JsonManagedReference
+    private List<Module> modules;
 }

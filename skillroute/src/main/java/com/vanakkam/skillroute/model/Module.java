@@ -1,5 +1,7 @@
 package com.vanakkam.skillroute.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,5 +36,6 @@ public class Module {
     // Many-to-One connection pointing back to our parent Course
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
+    @JsonBackReference
     private Course course;
 }

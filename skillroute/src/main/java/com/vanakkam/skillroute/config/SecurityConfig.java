@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         // Lock down the admin routes to ONLY users with the Admin role
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 // Tell Spring Security NOT to store session states (stateless JWT approach)
