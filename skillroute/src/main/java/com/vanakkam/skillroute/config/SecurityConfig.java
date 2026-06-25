@@ -37,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/learner/**").hasAuthority("ROLE_LEARNER")
 
+                        .requestMatchers("/api/dev/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 // Tell Spring Security NOT to store session states (stateless JWT approach)

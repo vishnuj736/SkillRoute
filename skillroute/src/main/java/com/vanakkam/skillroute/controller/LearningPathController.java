@@ -4,7 +4,9 @@ import com.vanakkam.skillroute.model.LearningPath;
 import com.vanakkam.skillroute.model.User;
 import com.vanakkam.skillroute.repository.UserRepository;
 import com.vanakkam.skillroute.service.LearningPathService;
+import com.vanakkam.skillroute.service.WeeklyEmailScheduler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -29,5 +31,13 @@ public class LearningPathController {
 
         LearningPath path = learningPathService.generatePath(learner.getId(), courseId);
         return ResponseEntity.ok(path);
+    }
+    @Autowired
+    private WeeklyEmailScheduler weeklyEmailScheduler;
+
+    @PostMapping("/trigger-weekly-email")
+    public ResponseEntity<String> triggerWeeklyEmail() {
+        weeklyEmailScheduler.triggerManually();
+        return ResponseEntity.ok("Weekly email job triggered successfully");
     }
 }

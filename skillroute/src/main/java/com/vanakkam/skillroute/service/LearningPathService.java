@@ -24,6 +24,8 @@ public class LearningPathService {
     private final AssessmentResultRepository assessmentResultRepository;
     private final LearningPathRepository learningPathRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final EmailService emailService;
+
 
     @Transactional
     public LearningPath generatePath(Long userId, Long courseId) {
@@ -110,6 +112,9 @@ public class LearningPathService {
                     .pathJson(pathJson)
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            
+            emailService.sendWelcomeEmail(user, path);
 
             return learningPathRepository.save(path);
 
