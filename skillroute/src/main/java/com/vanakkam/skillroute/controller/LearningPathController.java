@@ -3,6 +3,7 @@ package com.vanakkam.skillroute.controller;
 import com.vanakkam.skillroute.model.LearningPath;
 import com.vanakkam.skillroute.model.User;
 import com.vanakkam.skillroute.repository.UserRepository;
+import com.vanakkam.skillroute.repository.LearningPathRepository;
 import com.vanakkam.skillroute.service.LearningPathService;
 import com.vanakkam.skillroute.service.WeeklyEmailScheduler;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ public class LearningPathController {
 
     private final LearningPathService learningPathService;
     private final UserRepository userRepository;
+    private final LearningPathRepository learningPathRepository;
+
 
     @PostMapping("/generate/{courseId}")
     public ResponseEntity<LearningPath> generatePath(
@@ -39,5 +42,19 @@ public class LearningPathController {
     public ResponseEntity<String> triggerWeeklyEmail() {
         weeklyEmailScheduler.triggerManually();
         return ResponseEntity.ok("Weekly email job triggered successfully");
+    }
+    @GetMapping("/view/{courseId}")
+    public ResponseEntity<?> viewPath(
+            @PathVariable Long courseId,
+            Authentication authentication) {
+
+        User learner = userRepository.findByEmail(authentication.getName())
+                .orElseThrow();
+
+        return learningPathRepository
+                .findTopByUserIdAndCourseIdOrderByIdDesc(
+                        learner.getId(), courseId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

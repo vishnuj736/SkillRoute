@@ -4,6 +4,8 @@ package com.vanakkam.skillroute.service;
 
 import com.vanakkam.skillroute.dto.AssessmentRequest;
 import com.vanakkam.skillroute.dto.QuestionRequest;
+import com.vanakkam.skillroute.exception.GlobalExceptionHandler;
+import com.vanakkam.skillroute.exception.ResourceNotFoundException;
 import com.vanakkam.skillroute.model.Assessment;
 import com.vanakkam.skillroute.model.Course;
 import com.vanakkam.skillroute.model.Question;
@@ -25,7 +27,7 @@ public class AssessmentService {
     @Transactional
     public Assessment createAssessment(Long courseId, AssessmentRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("No assessment found for course ID: " + courseId));
 
         Assessment assessment = Assessment.builder()
                 .title(request.getTitle())

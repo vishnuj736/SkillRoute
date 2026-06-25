@@ -2,6 +2,7 @@ package com.vanakkam.skillroute.service;
 
 import com.vanakkam.skillroute.dto.AnswerSubmission;
 import com.vanakkam.skillroute.dto.AssessmentSubmissionRequest;
+import com.vanakkam.skillroute.exception.ResourceNotFoundException;
 import com.vanakkam.skillroute.model.*;
 import com.vanakkam.skillroute.repository.AssessmentRepository;
 import com.vanakkam.skillroute.repository.AssessmentResultRepository;
@@ -32,7 +33,7 @@ public class AssessmentResultService {
                 .orElseThrow(() -> new RuntimeException("Learner not found"));
 
         Assessment assessment = assessmentRepository.findById(assessmentId)
-                .orElseThrow(() -> new RuntimeException("Assessment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("No assessment found for course ID: " + assessmentId));
 
         int totalQuestions = request.getAnswers().size();
         int score = 0;
